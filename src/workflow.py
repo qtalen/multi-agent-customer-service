@@ -117,7 +117,6 @@ class CustomerService(Workflow):
                 agent_config.system_prompt.strip()
                 + f"\n\n<user state>:\n{user_state_str}"
         )
-        ctx.write_event_to_stream(ProgressEvent(msg=f"In step speak_with_sub_agent, system_prompt:\n{system_prompt}"))
         llm_input = [ChatMessage(role="system", content=system_prompt)] + chat_history
         tools = [get_function_tool(RequestTransfer)] + agent_config.tools
         event, tool_calls, response = await self.achat_to_tool_calls(ctx, tools, llm_input)
