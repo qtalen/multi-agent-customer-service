@@ -19,7 +19,7 @@ Settings.llm = llm
 GREETINGS = "Hello, what can I do for you?"
 
 
-def ready_my_agent() -> CustomerService:
+def ready_my_workflow() -> CustomerService:
     memory = ChatMemoryBuffer(
         llm=llm,
         token_limit=5000
@@ -41,10 +41,8 @@ def initialize_user_state() -> dict[str, str | None]:
 
 @cl.on_chat_start
 async def start():
-    agent = ready_my_agent()
-    user_state = initialize_user_state()
-    cl.user_session.set("workflow", agent)
-    cl.user_session.set("user_state", user_state)
+    workflow = ready_my_workflow()
+    cl.user_session.set("workflow", workflow)
 
     await cl.Message(
         author="assistant", content=GREETINGS
@@ -58,11 +56,11 @@ async def on_progress(message: str):
 
 @cl.on_message
 async def main(message: cl.Message):
-    agent: CustomerService = cl.user_session.get("workflow")
+    workflow: CustomerService = cl.user_session.get("workflow")
     context = cl.user_session.get("context")
     msg = cl.Message(content="", author="assistant")
     user_msg = message.content
-    handler = agent.run(
+    handler = workflow.run(
         msg=user_msg,
         ctx=context
     )

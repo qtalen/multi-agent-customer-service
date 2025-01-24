@@ -21,6 +21,7 @@ from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.llms.openai_like import OpenAILike
 
 from agents import (
+    ORCHESTRATION_PROMPT,
     RequestTransfer,
     AgentConfig,
     TransferToAgent,
@@ -28,20 +29,6 @@ from agents import (
     get_agent_configs_str
 )
 from utils import FunctionToolWithContext
-
-ORCHESTRATION_PROMPT = """  
-    You are a customer service manager for a drone store.
-    Based on the user's current status, latest request, and the available customer service agents, you help the user decide which agent to consult next.
-    
-    You don't focus on the dependencies between agents; the agents will handle those themselves.
-    If the user asks about something unrelated to drones, you should politely and briefly decline to answer.
-    
-    Here is the list of available customer service agents:
-    {agent_configs_str}
-    
-    Here is the user's current status:
-    {user_state_str}
-"""
 
 
 class OrchestrationEvent(Event):
