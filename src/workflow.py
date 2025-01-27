@@ -67,11 +67,6 @@ class CustomerService(Workflow):
         super().__init__(*args, **kwargs)
 
     @step
-    async def start(self, ctx: Context, ev: StartEvent) -> StopEvent:
-        ctx.write_event_to_stream(ProgressEvent(msg="We're making some progress."))
-        return StopEvent(result="Hello World")
-
-    @step
     async def start(
             self, ctx: Context, ev: StartEvent
     ) -> ActiveSpeakerEvent | OrchestrationEvent:
@@ -180,10 +175,6 @@ class CustomerService(Workflow):
     async def orchestrate(
             self, ctx: Context, ev: OrchestrationEvent
     ) -> ActiveSpeakerEvent | StopEvent:
-        self.memory.reset()
-        await self.memory.aput(ChatMessage(
-            role="user", content=ev.query
-        ))
         chat_history = self.memory.get()
         user_state_str = await self._get_user_state_str(ctx)
         system_prompt = ORCHESTRATION_PROMPT.format(
