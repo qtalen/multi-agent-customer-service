@@ -3,6 +3,7 @@ import chainlit as cl
 from llama_index.core import Settings
 from llama_index.llms.openai_like import OpenAILike
 from llama_index.core.memory import ChatMemoryBuffer
+from llama_index.core.workflow import Context
 
 from workflow import CustomerService, ProgressEvent
 
@@ -19,18 +20,20 @@ Settings.llm = llm
 GREETINGS = "Hello, what can I do for you?"
 
 
-def ready_my_workflow() -> CustomerService:
+def ready_my_workflow() -> tuple[CustomerService, Context]:
     memory = ChatMemoryBuffer(
         llm=llm,
         token_limit=5000
     )
 
-    agent = CustomerService(
+    workflow = CustomerService(
         memory=memory,
         timeout=None,
         user_state=initialize_user_state()
     )
-    return agent
+
+    context = Context(workflow)
+    return workflow, context
 
 
 def initialize_user_state() -> dict[str, str | None]:
@@ -41,8 +44,9 @@ def initialize_user_state() -> dict[str, str | None]:
 
 @cl.on_chat_start
 async def start():
-    workflow = ready_my_workflow()
+    workflow, ctx = ready_my_workflow()
     cl.user_session.set("workflow", workflow)
+    cl.user_session.set("context", ctx)
 
     await cl.Message(
         author="assistant", content=GREETINGS
