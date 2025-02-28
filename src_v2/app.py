@@ -14,7 +14,6 @@ from llama_index.core.agent.workflow import (
 from llama_index.core.workflow import Context
 
 from agents import concierge_agent, pre_sales_agent, post_sales_agent
-from my_workflow import MyAgentWorkflow
 
 load_dotenv("../../.env")
 
@@ -26,9 +25,8 @@ def ready_my_workflow() -> tuple[AgentWorkflow, Context]:
         agents=[concierge_agent, pre_sales_agent, post_sales_agent],
         root_agent=concierge_agent.name,
         handoff_output_prompt=(
-            "Because of {reason}, the user's request has been handed over to {to_agent}.\n"
-            "Please review the conversation history immediately and continue to respond to the user's request.\n"
-            "If necessary, use the appropriate tools to get information."
+            "handoff_result: Due to {reason}, the user's request has been passed to {to_agent}."
+            "Please review the conversation history immediately and continue responding to the user's request."
         ),
         initial_state={
             "username": None

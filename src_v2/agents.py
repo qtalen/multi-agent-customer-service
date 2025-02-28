@@ -6,7 +6,7 @@ from src.models import INDEXES, query_docs
 from my_agent import MyFunctionAgent
 
 llm = OpenAILike(
-    model="qwen-plus-latest",
+    model="qwen-max-latest",
     is_chat_model=True,
     is_function_calling_model=True,
     temperature=0.01
@@ -46,45 +46,41 @@ async def query_terms_info(ctx: Context, query: str) -> str:
     return terms_info
 
 
-concierge_agent = FunctionAgent(
+concierge_agent = MyFunctionAgent(
     name="ConciergeAgent",
     description="An agent to register user information, used to check if the user has already registered their title.",
     system_prompt=(
-        "You are an assistant responsible for registering user information.\n"
-        "You check from the state whether a user has registered their title.\n"
-        "If it's not registered, you need to ask the user to register it.\n"
-        "You are not allowed to make up a user's title.\n"
-        "If the user has provided their information, you need to use the login tool to record this information.\n"
-        "Once the information is recorded or if the state already has the user's information saved,\n"
-        "you can pass control based on the user's intent to either the PreSalesAgent or the PostSalesAgent.\n"
+        "You are an assistant responsible for recording user information."
+        "You check from the state whether the user has provided their title or not."
+        "If they haven't, you should ask the user to provide it."
+        "You cannot make up the user's title."
+        "If the user has already provided their information, you should use the login tool to record this information."
     ),
     tools=[login],
     can_handoff_to=["PreSalesAgent", "PostSalesAgent"]
 )
 
 
-pre_sales_agent = FunctionAgent(
+pre_sales_agent = MyFunctionAgent(
     name="PreSalesAgent",
     description="A pre-sales assistant helps answer customer questions about products and assists them in making purchasing decisions.",
     system_prompt=(
-        "You are an assistant designed to answer users' questions about product information to help them make suitable decisions before purchasing.\n"
-        "**When you receive a user's request, you will immediately review the conversation history and respond without making the user wait.**\n"
-        "You must use the 'query_sku_info' tool to get the required information to answer the customer, and you cannot make up non-existent information.\n"
-        "If the user is not seeking pre-purchase advice, you should hand over control to the ConciergeAgent or PostSalesAgent.\n"
+        "You are an assistant designed to answer users' questions about product information to help them make the right decision before purchasing."
+        "You must use the query_sku_info tool to get the necessary information to answer the user and cannot make up information that doesn't exist."
+        "If the user is not asking pre-purchase questions, you should transfer control to the ConciergeAgent or PostSalesAgent."
     ),
     tools=[query_sku_info],
     can_handoff_to=["ConciergeAgent", "PostSalesAgent"]
 )
 
 
-post_sales_agent = FunctionAgent(
+post_sales_agent = MyFunctionAgent(
     name="PostSalesAgent",
     description="After-sales agent, used to answer user inquiries about product after-sales information, including product usage Q&A and after-sales policies.",
     system_prompt=(
-        "You are an assistant designed to answer user inquiries about product after-sales information, including product usage Q&A and after-sales policies.\n"
-        "**When you receive a user's request, you will immediately review the conversation history and respond without making the user wait.**\n"
-        "You must use the 'query_terms_info' tool to get the required information to answer the customer, and you cannot make up non-existent information.\n"
-        "If the user is not seeking after-sales or product usage-related advice, you should hand over control to the ConciergeAgent or PreSalesAgent.\n"
+        "You are an assistant responsible for answering users' questions about product after-sales information, including product usage Q&A and after-sales policies."
+        "You must use the query_terms_info tool to get the necessary information to answer the user and cannot make up information that doesn't exist."
+        "If the user is not asking after-sales or product usage-related questions, you should transfer control to the ConciergeAgent or PreSalesAgent."
     ),
     tools=[query_terms_info],
     can_handoff_to=["ConciergeAgent", "PreSalesAgent"]
