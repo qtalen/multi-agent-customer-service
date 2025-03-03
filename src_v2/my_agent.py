@@ -1,6 +1,6 @@
 from typing import override, Sequence, List
 
-from llama_index.core.agent.workflow import FunctionAgent
+from llama_index.core.agent.workflow import FunctionAgent, ReActAgent
 from llama_index.core.llms import ChatMessage, MessageRole
 from llama_index.core.workflow import Context
 from llama_index.core.memory import BaseMemory
