@@ -1,6 +1,8 @@
 from llama_index.core import Settings
 from llama_index.core.workflow import Context
 from llama_index.llms.openai_like import OpenAILike
+from llama_index.core.agent.workflow import FunctionAgent
+
 from src.models import INDEXES, query_docs
 from my_agent import MyFunctionAgent
 
